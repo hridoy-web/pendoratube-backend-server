@@ -1,0 +1,20 @@
+{
+  "name": "pendoratube-backend-server",
+  "version": "1.0.0",
+  "description": "Backend API engine powering PendoraTube video platform built with Node.js and Express",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "javaScript",
+    "Express",
+    "Backend"
+  ],
+  "author": "Hridoy Chowdhury",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
