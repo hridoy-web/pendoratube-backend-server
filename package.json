@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Backend API engine powering PendoraTube video platform built with Node.js and Express",
   "main": "index.js",
- "scripts": {
+  "scripts": {
     "dev": "node --watch --env-file=.env src/index.js",
     "start": "node --env-file=.env src/index.js"
   },
@@ -19,6 +19,8 @@
     "prettier": "^3.9.6"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "mongoose": "^9.9.1"
   }
