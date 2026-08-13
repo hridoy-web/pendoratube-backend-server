@@ -21,16 +21,16 @@ const uploadOnCloudinary = async (localFilePath) => {
     } catch (error) {
         console.error("Cloudinary upload failed:", error.message || error);
         return null;
+
     } finally {
 
         // Check if there is a local file path available   
         if (localFilePath) {
             try {
-
                // Delete the temporary local file safely
                 await fs.unlink(localFilePath);
-            } catch (cleanUpError) {
 
+            } catch (cleanUpError) {
                 // Log error if file deletion fails so the server does not crash     
                 console.error("Local file cleanup failed:", cleanUpError.message || cleanUpError);
             }
