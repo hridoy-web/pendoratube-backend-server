@@ -3,6 +3,10 @@ import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js'
+import { error } from 'console';
+
+// Helper Function: Access ও Refresh Token
+
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -73,5 +77,37 @@ const registerUser = asyncHandler(async (req, res) => {
         new ApiResponse(200, createdUser, "User registered successfully")
     );
 });
+
+const loginUser = asyncHandler(async (req, res) => {
+
+    // 1 - req.body > get data
+    const { email, username, password } = req.body;
+
+    // 2 - Validation
+    if (!username && !email) {
+        throw new ApiError(400, 'username or email is required')
+    }
+
+    // 3 - Find user in database
+    const user = await User.findOne({
+        $or: [{ username }, { email }]
+    })
+
+    if (!user) {
+        throw new ApiError(404, 'user does not exist')
+    }
+
+    // 4 - Password Verification
+    const isPasswordValid = await user.isPasswordCorrect(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, 'Invalid user credentials')
+    }
+
+    // 5: Generate Tokens
+
+})
+
+
 
 export { registerUser };
