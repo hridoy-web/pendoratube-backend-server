@@ -3,10 +3,23 @@ import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js'
-import { error } from 'console';
 
-// Helper Function: Access ও Refresh Token
+// Helper Function: Access or Refresh Token
+const generateAccessAndRefereshTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
 
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
+
+        return { accessToken, refreshToken }
+
+    } catch (error) {
+        throw new ApiError(500, 'Something went wrong while generating accessToken tokens and refresh token')
+    }
+}
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -53,7 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // NO: 06 - Create user object in DB
-    const user = await user.create({
+    const user = await User.create({
         fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
@@ -64,7 +77,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // NO: 07 - Remove sensitive fields before sending response
     const createdUser = await User.findById(user._id).select(
-        "-password - refreshToken"
+        "-password -refreshToken"
     )
 
     // N0: 08 - if user not create throw error
@@ -101,13 +114,36 @@ const loginUser = asyncHandler(async (req, res) => {
     const isPasswordValid = await user.isPasswordCorrect(password)
 
     if (!isPasswordValid) {
-        throw new ApiError(401, 'Invalid user credentials')
+        throw new ApiError(401, 'Invalid user credentials');
     }
 
     // 5: Generate Tokens
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
 
-})
+    const loggedInUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
 
+    // Cookie Security Options
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
 
+    // 6 - send response with cookies
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedInUser, accessToken, refreshToken
+                },
+                'user logged in successfully'
+            )
+        );
+});
 
-export { registerUser };
+export { registerUser, loginUser };
