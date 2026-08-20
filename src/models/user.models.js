@@ -8,8 +8,8 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            lowercase: true, 
-            trim: true, 
+            lowercase: true,
+            trim: true,
             index: true
         },
         email: {
@@ -29,7 +29,7 @@ const userSchema = new Schema(
             required: true
         },
         coverImage: {
-            type: String 
+            type: String
         },
         watchHistory: [{
             type: Schema.Types.ObjectId,
@@ -37,29 +37,23 @@ const userSchema = new Schema(
         }],
         password: {
             type: String,
-            required: [true, 'Password is Required'] 
+            required: [true, 'Password is Required']
         },
         refreshToken: {
             type: String
         }
     },
-    { 
+    {
         timestamps: true
     }
 );
 
 // PASSWORD HASHING
-userSchema.pre("save", async function (next) {
-    
-    if (!this.isModified("password")) {
-        return next();
-    }
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
 
     this.password = await bcrypt.hash(this.password, 10);
-
-    next();
 });
-
 
 // 2. PASSWORD CHECKING 
 userSchema.methods.isPasswordCorrect = async function (password) {
@@ -68,7 +62,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 // 3. GENERATE ACCESS TOKEN 
 userSchema.methods.generateAccessToken = function () {
-    
+
     return jwt.sign(
         {
             _id: this._id,
@@ -89,7 +83,7 @@ userSchema.methods.generateRefreshToken = function () {
         {
             _id: this._id
         },
-        process.env.REFRESH_TOKEN_SECRET, 
+        process.env.REFRESH_TOKEN_SECRET,
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }

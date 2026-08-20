@@ -1,8 +1,8 @@
 import { User } from '../models/user.models.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js'
-import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiResponse.js'
+import { uploadOnCloudinary } from '../utils/cloudinary.js';
 
 // Helper Function: Access or Refresh Token
 const generateAccessAndRefereshTokens = async (userId) => {
@@ -59,7 +59,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // NO: 05 - Upload files to cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    let coverImage = null;
+    if (coverImageLocalPath) {
+        coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    }
 
     if (!avatar) {
         throw new ApiError(400, "Failed to upload avatar image")
@@ -97,10 +100,10 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, username, password } = req.body;
 
     // 2 - Validation
-    if (!username && !email) {
-        throw new ApiError(400, 'username or email is required')
+    if ((!username && !email) || !password) {
+        throw new ApiError(400, "Username/Email and password are required");
     }
-
+    
     // 3 - Find user in database
     const user = await User.findOne({
         $or: [{ username }, { email }]

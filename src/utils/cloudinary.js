@@ -11,7 +11,7 @@ const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return null;
 
-       // Upload the file to Cloudinary
+        // Upload the file to Cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto"
         });
@@ -23,19 +23,15 @@ const uploadOnCloudinary = async (localFilePath) => {
         return null;
 
     } finally {
-
-        // Check if there is a local file path available   
+        // Safe asynchronous cleanup
         if (localFilePath) {
             try {
-               // Delete the temporary local file safely
                 await fs.unlink(localFilePath);
-
             } catch (cleanUpError) {
-                // Log error if file deletion fails so the server does not crash     
                 console.error("Local file cleanup failed:", cleanUpError.message || cleanUpError);
             }
         }
     }
 };
 
-export default uploadOnCloudinary;
+export { uploadOnCloudinary };
