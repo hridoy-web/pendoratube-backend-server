@@ -19,7 +19,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
     } catch (error) {
         throw new ApiError(500, 'Something went wrong while generating accessToken tokens and refresh token')
     }
-}
+};
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -103,7 +103,7 @@ const loginUser = asyncHandler(async (req, res) => {
     if ((!username && !email) || !password) {
         throw new ApiError(400, "Username/Email and password are required");
     }
-    
+
     // 3 - Find user in database
     const user = await User.findOne({
         $or: [{ username }, { email }]
@@ -148,5 +148,9 @@ const loginUser = asyncHandler(async (req, res) => {
             )
         );
 });
+
+const logoutUser = asyncHandler(async (req, res) => {
+
+})
 
 export { registerUser, loginUser };
